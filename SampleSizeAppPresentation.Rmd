@@ -1,0 +1,66 @@
+---
+title: "Interactive application to calculate survey sample size"
+author: "YJ Choi"
+last updated: "1/17/2020"
+output: ioslides_presentation
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      results="hide",
+                      comment = "",
+                      message = FALSE,
+                      warning = FALSE)
+date<-as.Date(Sys.time(	), format='%d%b%Y')
+```
+
+## What does the app do?  
+
+Survey sample size is determined by various factors. Basic determinants are an expected level of metrics of interest and precision of the estimate we want from the survey, in addition to many additional factors such as response rates, survey designs. 
+
+This application calculates required sample size based on the two: 
+
+- expected level of a main metric (e.g., % of registered voters who plan to cast ballet) and, 
+- required/ideal level of precision (e.g., margin of error +/- 3% point).
+
+## Where is the app?
+
+The app is available at <https://yj-choi.shinyapps.io/Shiny_SampleSize/>.
+
+Code and further information is at GitHub, <https://github.com/yoonjoung/Shiny_SampleSize>.
+
+
+## "ui.R" and "server.R"
+
+- Users select two inputs: "level1" & "precision1"  
+- Based on the two values, server.R code is below.
+```{r, evaluate=FALSE, echo=TRUE}
+library(shiny)
+shinyServer(function(input, output) {  
+    output$text1 <- renderText({
+        paste(input$level1,"%,") 
+        })
+    output$text2 <- renderText({
+        paste("+/-", input$precision1, "% point of the estimate,") 
+        })    
+    output$text3 <- renderText({
+        p  <- input$level1/100 
+        e  <- as.numeric(input$precision1)/100 
+        ss <- round(p*(1-p)*1.96^2/(e^2))
+        paste(ss)
+        })    
+})       
+```
+
+## Illustrative input and output
+- If prevalence of an indicator is 75%, and margin of error is +/- 5% point, the output is the below. 
+
+```{r, echo=TRUE, results='asis'}
+
+    level1<-75
+    precision1<-5
+    p  <- level1/100 
+    e  <- precision1/100 
+    ss <- round(p*(1-p)*1.96^2/(e^2))
+    
+    ss
+```
