@@ -32,28 +32,28 @@ ui<-fluidPage(
             h5("Part 1"),
             numericInput("level1", 
                         "What is an expected level of your main indicator (%)?",
-                        min = 0, max = 100, value = 35),        
+                        min = 0, max = 100, value = 80),        
                     
             radioButtons("precision1", 
                         "What is your required margin of error for estimates?", 
-                        choices = list("+/- 1 percentage point"=1, 
-                                       "+/- 2 percentage points"=2, 
-                                       "+/- 3 percentage points"=3, 
-                                       "+/- 5 percentage points"=4),
-                        selected= 3
+                        choices = list("+/- 2 percentage points"=2, 
+                                       "+/- 3 percentage points"=3,
+                                       "+/- 5 percentage points"=5, 
+                                       "+/- 10 percentage points"=10),
+                        selected= 5
                         ),
             br(),
             br(),
             h5("Part 2"),
             numericInput("responserate1", 
                         "What is your expected response rate (%) during survey implementation?",
-                        min = 50, max = 100, value = 80),        
+                        min = 50, max = 100, value = 95),        
             br(),
             br(),
             h5("Part 3"),
             numericInput("designeffect1", 
                         "What is expected design effect in your survey design? (provide 1 if the sample design is simple random)",
-                        min = 0.5, max = 10, value = 2),
+                        min = 0.5, max = 10, value = 1),
             br(),
             br(),
             h5("Part 4"),
@@ -107,7 +107,7 @@ ui<-fluidPage(
             hr(),                        
             h5(strong("Part 3")),
             h5("Rarely, a large survey can have a simple random sample design, due to logistics challenges in field implementation and finite budget.", 
-               "When non-random sample design is used (e.g., cluster sample),",a("design effect",href="https://www.statisticshowto.datasciencecentral.com/design-effect/"), "needs to be incorporated.",
+               "When non-random sample design is used (e.g., cluster sample),",a("design effect",href="https://isquared.shinyapps.io/DesignEffect/"), "needs to be incorporated.",
                "In social science, design effect is typically (but not necessarily always) greater than 1, and the sample size is inflated by that effect."), 
             h5("Provide expected design effect on the left panel."),            
             
@@ -141,7 +141,7 @@ ui<-fluidPage(
                
             hr(),
             h6("See", a("GitHub",href="https://github.com/yoonjoung/Shiny_SampleSize"),"for more information."),
-            h6("(Application last updated on:", as.Date(Sys.time(	), format='%d%b%Y'),")"),
+            h6("Application initially published on March 3, 2020."),
             h6("For typos, errors, and questions:", a("contact me",href="https://www.isquared.global/YJ"))
         )
     )
@@ -159,7 +159,8 @@ server<-function(input, output) {
         paste(input$level1,"%") 
         })
     output$text2 <- renderText({
-        paste("+/-", input$precision1, "% point of the estimate") 
+        paste("+/-", as.character(input$precision1), "% point of the estimate") 
+        #paste(input$precision1) 
         })    
     
     # calculated sample size
@@ -177,7 +178,7 @@ server<-function(input, output) {
         ssize <- round(p*(1-p)*1.96^2/(e^2))
                 
         p<-c(seq(0, 100, 5))
-        e<-c(1,2,3,5)
+        e<-c(2,3,5,10)
         dta<-expand.grid(p,e)
         dta<-dta %>% rename(p=Var1,e=Var2)
         dta$ss = round(dta$p/100*(1-dta$p/100)*1.96^2/((dta$e/100)^2))
